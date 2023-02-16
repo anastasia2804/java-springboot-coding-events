@@ -2,6 +2,7 @@ package com.example.codingevents.controllers;
 
 import com.example.codingevents.data.EventData;
 import com.example.codingevents.models.Event;
+import com.example.codingevents.models.EventType;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +29,7 @@ public class EventController {
     public String renderCreateEventForm(Model model) {
         model.addAttribute("title", "Create Event");
         model.addAttribute(new Event());
+        model.addAttribute("types", EventType.values());
         return "events/create";
     }
     @PostMapping("create")
