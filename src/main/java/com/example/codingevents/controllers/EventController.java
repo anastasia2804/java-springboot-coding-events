@@ -1,11 +1,12 @@
 package com.example.codingevents.controllers;
 
+import com.example.codingevents.data.EventData;
+import com.example.codingevents.models.Event;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,21 +18,44 @@ import java.util.List;
 @RequestMapping("events")
 public class EventController {
 
-    private static List<String> events = new ArrayList<>();
-
     @GetMapping
     public String displayAllEvents(Model model) {
-        model.addAttribute("events", events);
+        model.addAttribute("events", EventData.getAll()); //EventData.getAll is calling a method on the class
         return "events/index";
     }
 
     @GetMapping("create")
-    public String renderCreateEventForm() {
+    public String renderCreateEventForm(Model model) {
+        model.addAttribute("title", "Create Event");
+        model.addAttribute(new Event());
         return "events/create";
     }
     @PostMapping("create")
-    public String createEvent(@RequestParam String eventName) {
-        events.add(eventName);
+    public String createEvent(@ModelAttribute @Valid Event newEvent, Errors errors, Model model) { //Spring will create a newEvent object for us
+
+        if(errors.hasErrors()){
+            model.addAttribute("title", "Create Event");
+            return "events/create";
+        }
+
+        EventData.add(newEvent);
+        return "redirect:/events";
+    }
+
+    @GetMapping("delete")
+    public String displayDeleteEventForm(Model model) {
+        model.addAttribute("title", "Delete events");
+        model.addAttribute("events", EventData.getAll());
+        return "events/delete";
+    }
+
+    @PostMapping("delete")
+    public String processDeleteEventForm(@RequestParam(required =false) int[] eventIds) {
+        if (eventIds !=null) {
+            for (int id : eventIds) {
+                EventData.remove(id);
+            }
+        }
         return "redirect:/events";
     }
 
