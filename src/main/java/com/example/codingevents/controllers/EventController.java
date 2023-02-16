@@ -2,8 +2,10 @@ package com.example.codingevents.controllers;
 
 import com.example.codingevents.data.EventData;
 import com.example.codingevents.models.Event;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -23,11 +25,19 @@ public class EventController {
     }
 
     @GetMapping("create")
-    public String renderCreateEventForm() {
+    public String renderCreateEventForm(Model model) {
+        model.addAttribute("title", "Create Event");
+        model.addAttribute(new Event());
         return "events/create";
     }
     @PostMapping("create")
-    public String createEvent(@ModelAttribute Event newEvent) { //Spring will crete a newEvent object for us
+    public String createEvent(@ModelAttribute @Valid Event newEvent, Errors errors, Model model) { //Spring will create a newEvent object for us
+
+        if(errors.hasErrors()){
+            model.addAttribute("title", "Create Event");
+            return "events/create";
+        }
+
         EventData.add(newEvent);
         return "redirect:/events";
     }
