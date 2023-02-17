@@ -1,16 +1,17 @@
 package com.example.codingevents.controllers;
 
-import com.example.codingevents.data.EventData;
+import com.example.codingevents.data.EventRepository;
 import com.example.codingevents.models.Event;
 import com.example.codingevents.models.EventType;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+//import java.util.ArrayList;
+//import java.util.List;
 
 /**
  * Created by Chris Bay
@@ -19,9 +20,14 @@ import java.util.List;
 @RequestMapping("events")
 public class EventController {
 
+    @Autowired
+    private EventRepository eventRepository;
+
+    //findAll, save, findById - methods that are part of CRUDrepo and therefore our interface
+
     @GetMapping
     public String displayAllEvents(Model model) {
-        model.addAttribute("events", EventData.getAll()); //EventData.getAll is calling a method on the class
+        model.addAttribute("events", eventRepository.findAll()); //EventData.getAll is calling a method on the class
         return "events/index";
     }
 
@@ -40,14 +46,14 @@ public class EventController {
             return "events/create";
         }
 
-        EventData.add(newEvent);
+        eventRepository.save(newEvent);
         return "redirect:/events";
     }
 
     @GetMapping("delete")
     public String displayDeleteEventForm(Model model) {
         model.addAttribute("title", "Delete events");
-        model.addAttribute("events", EventData.getAll());
+        model.addAttribute("events", eventRepository.findAll());
         return "events/delete";
     }
 
@@ -55,7 +61,7 @@ public class EventController {
     public String processDeleteEventForm(@RequestParam(required =false) int[] eventIds) {
         if (eventIds !=null) {
             for (int id : eventIds) {
-                EventData.remove(id);
+                eventRepository.deleteById(id);
             }
         }
         return "redirect:/events";
